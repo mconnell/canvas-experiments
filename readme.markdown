@@ -12,3 +12,4 @@ Let's see what can be done with them both.
 [3] https://developer.mozilla.org/en/DOM/element.addEventListener
 [4] https://developer.mozilla.org/en/Drawing_text_using_a_canvas
 [5] http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html
+[6] http://dev.opera.com/articles/view/html-5-canvas-the-basics/

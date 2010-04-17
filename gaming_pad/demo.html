@@ -16,6 +16,13 @@
     var canvas  = document.getElementById('game_canvas');
     var context = canvas.getContext('2d');
 
+    var d_pad_x_position      = 10;
+    var d_pad_y_position      = 150;
+    var d_pad_size            = 100;
+    var button_one_x_position = 410;
+    var button_one_y_position = 175;
+    var button_one_size       = 50;
+
     // buttons and there current state, default false;
     var d_pad_up    = false;
     var d_pad_down  = false;
@@ -127,7 +134,7 @@
 
     function drawBox(context){
       context.fillStyle = box_colour;
-      context.fillRect(box_x_position, box_y_position, 50, 50);
+      context.fillRect(box_x_position, box_y_position, 35, 35);
     }
 
     function keyPressDown(event)
@@ -162,6 +169,49 @@
       };
     };
 
+    // returns a boolean whether the user is touching the right button on the d-pad
+    function touchedDPad(arrow, touch_event){
+      // the co-ords of the area that can be pressed for the right action
+      // to be recognised
+      boundary_x_range = [];
+      boundary_y_range = [];
+
+      switch(arrow){
+        case "up":
+          boundary_x_range = [d_pad_x_position, d_pad_x_position + d_pad_size];
+          boundary_y_range = [d_pad_y_position, d_pad_y_position + (d_pad_size / 3.0)];
+          break;
+        case "down":
+          boundary_x_range = [d_pad_x_position, d_pad_x_position + d_pad_size];
+          boundary_y_range = [d_pad_y_position + d_pad_size - (d_pad_size / 3.0), d_pad_y_position + d_pad_size];
+          break;
+        case "left":
+          boundary_x_range = [d_pad_x_position, d_pad_x_position + (d_pad_size / 3.0)];
+          boundary_y_range = [d_pad_y_position, d_pad_y_position + d_pad_size];
+          break;
+        case "right":
+          boundary_x_range = [d_pad_x_position + d_pad_size - (d_pad_size / 3.0), d_pad_x_position + d_pad_size];
+          boundary_y_range = [d_pad_y_position, d_pad_y_position + d_pad_size];
+          break;
+      }
+
+      // X and Y co-ords of the screen touch are within the boundary of the button
+      // The boundary of the button is greater than the button..
+      within_x_range = boundary_x_range[0] < touch_event.pageX && touch_event.pageX < boundary_x_range[1]
+      within_y_range = boundary_y_range[0] < touch_event.pageY && touch_event.pageY < boundary_y_range[1]
+      //alert("X: " + touch_event.pageX + " - " + within_x_range + ", Y: " + touch_event.pageY + " - " + within_y_range);
+      return (within_x_range && within_y_range);
+    }
+
+    function touchedButtonOne(touch_event){
+      within_x_range = button_one_x_position < touch_event.pageX && touch_event.pageX < (button_one_x_position + button_one_size);
+      within_y_range = button_one_y_position < touch_event.pageY && touch_event.pageY < (button_one_y_position + button_one_size);
+      //alert("X: " + touch_event.pageX + " - " + within_x_range + ", Y: " + touch_event.pageY + " - " + within_y_range);
+      return (within_x_range && within_y_range);
+    }
+
+
+    // The tick represents each frame on the canvas being rendered in effect..
     function tick(){
       context.clearRect(0,0, 480, 320);
 
@@ -169,16 +219,16 @@
         box_colour = colours[Math.floor(Math.random()*7)];
       }
       if(d_pad_up){
-        box_y_position = box_y_position - 2;
+        box_y_position = box_y_position - 3;
       }
       if(d_pad_down){
-        box_y_position = box_y_position + 2;
+        box_y_position = box_y_position + 3;
       }
       if(d_pad_left){
-        box_x_position = box_x_position - 2;
+        box_x_position = box_x_position - 3;
       }
       if(d_pad_right){
-        box_x_position = box_x_position + 2;
+        box_x_position = box_x_position + 3;
       }
 
       drawBox(context);
@@ -186,14 +236,35 @@
       drawNotices(context);
 
       // Draw controls last
-      drawDPad(context, 10, 210, 100);
-      drawButton(context, 410, 235, 50, "1", button_one);
+      drawDPad(context, d_pad_x_position, d_pad_y_position, d_pad_size);
+      drawButton(context, button_one_x_position, button_one_y_position, button_one_size, "1", button_one);
     }
 
     function init(){
       // attach listeners for keyboard presses
       window.addEventListener('keydown', keyPressDown, true)
       window.addEventListener('keyup',   keyPressUp, true)
+
+      //iPhone control mapping
+      document.ontouchstart = document.ontouchend = document.ontouchmove = function(event) {
+        d_pad_up = d_pad_down = d_pad_left = d_pad_right = button_one = false;
+        var touches = event.touches;
+        for (var i = 0; i < touches.length; i++) {
+          var touch = touches[i];
+          if (touchedDPad("up", touch))
+            d_pad_up = true;
+          if (touchedDPad("down", touch))
+            d_pad_down = true;
+          if (touchedDPad("left", touch))
+            d_pad_left = true;
+          if (touchedDPad("right", touch))
+            d_pad_right = true;
+          if (touchedButtonOne(touch))
+            button_one = true;
+        }
+        return false;
+      };
+      document.ontouchcancel = function (evt) { return false; };
 
       // start game tick
       setInterval(tick, 50);

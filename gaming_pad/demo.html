@@ -163,9 +163,6 @@
 
     function tick(){
       context.clearRect(0,0, 480, 320);
-      drawDPad(context, 10, 210, 100);
-      drawButton(context, 410, 235, 50, "1", button_one);
-      drawNotices(context);
 
       if(button_one){
         box_colour = colours[Math.floor(Math.random()*7)];
@@ -184,6 +181,12 @@
       }
 
       drawBox(context);
+
+      drawNotices(context);
+
+      // Draw controls last
+      drawDPad(context, 10, 210, 100);
+      drawButton(context, 410, 235, 50, "1", button_one);
     }
 
     function init(){

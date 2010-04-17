@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="styles.css" type="text/css" media="screen" title="no title" charset="utf-8" />
+  </head>
+  <body>
+    <div id="canvas_wrapper">
+      <canvas id="game_canvas" width="480" height="320">
+        &lt;canvas&gt; isn't supported by your browser..sorry..
+      </canvas>
+  </body>
+
+  <script type="text/javascript">
+    var canvas  = document.getElementById('game_canvas');
+    var context = canvas.getContext('2d');
+
+    // draw a d-pad styled button onto the canvas
+    // context:    the canvas context
+    // direction:  "up", "down", "left", "right"
+    // x_position: X-Axis on canvas where the button should be rendered
+    // y_position: Y-Axis on canvas where the button should be rendered
+    // size:       Size of button, eg. 50 will draw a square 50px*50px
+    function drawDirectionButton(context, direction, x_position, y_position, size){
+      context.fillStyle = "rgba(0, 0, 0, 0.2)";
+      context.fillRect(x_position, y_position, size, size);
+
+      mid_point = size / 2.0;
+      spacer    = size / 10.0;
+
+      context.fillStyle = "rgba(0, 0, 0, 0.2)";
+      context.beginPath();
+
+      switch (direction){
+        case "up":
+          context.moveTo(x_position + mid_point, y_position + spacer);
+          context.lineTo(x_position + size - spacer, y_position + size - spacer);
+          context.lineTo(x_position + spacer, y_position + size - spacer);
+        break;
+        case "down":
+          context.moveTo(x_position + mid_point, y_position + size - spacer);
+          context.lineTo(x_position + size - spacer, y_position + spacer);
+          context.lineTo(x_position + spacer, y_position + spacer);
+        break;
+        case "left":
+          context.moveTo(x_position + spacer, y_position + mid_point);
+          context.lineTo(x_position + size - spacer, y_position + spacer);
+          context.lineTo(x_position + size - spacer, y_position + size - spacer);
+        break;
+        case "right":
+          context.moveTo(x_position + size - spacer,  y_position + mid_point);
+          context.lineTo(x_position + spacer, y_position + spacer);
+          context.lineTo(x_position + spacer, y_position + size - spacer);
+        break;
+      };
+
+      // Fill triangle can close path
+      context.fill();
+      context.closePath();
+    }
+
+    // draws a D-Pad on the canvas..though it doesn't actually do anything..
+    function drawDPad(context, x_position, y_position, overall_size){
+      button_size = overall_size / 3.0;
+
+      drawDirectionButton(context, 'up', x_position + button_size, y_position, button_size);
+      drawDirectionButton(context, 'down', x_position + button_size, y_position + overall_size - button_size, button_size);
+      drawDirectionButton(context, 'left', x_position,  y_position + button_size, button_size);
+      drawDirectionButton(context, 'right', x_position + overall_size - button_size, y_position + button_size, button_size);
+    }
+
+    drawDPad(context, 10, 210, 100);
+  </script>
+</html>

@@ -1,0 +1,10 @@
+div#canvas_wrapper{
+  margin: 0 auto;
+  border: 1px solid black;
+  width:  480px;
+  height: 320px;
+}
+
+canvas#game_pad{
+  -webkit-user-select: none;                /* Prevent the user from selecting the content of the canvas */
+}

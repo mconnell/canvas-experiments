@@ -11,8 +11,15 @@
   </body>
 
   <script type="text/javascript">
+    // declare canvas variable and use 2d context
     var canvas  = document.getElementById('game_canvas');
     var context = canvas.getContext('2d');
+
+    // buttons and there current state, default false;
+    var d_pad_up    = false;
+    var d_pad_down  = false;
+    var d_pad_left  = false;
+    var d_pad_right = false;
 
     // draw a d-pad styled button onto the canvas
     // context:    the canvas context
@@ -20,14 +27,16 @@
     // x_position: X-Axis on canvas where the button should be rendered
     // y_position: Y-Axis on canvas where the button should be rendered
     // size:       Size of button, eg. 50 will draw a square 50px*50px
-    function drawDirectionButton(context, direction, x_position, y_position, size){
+    // active:     Boolean if the key is currently active
+    function drawDirectionButton(context, direction, x_position, y_position, size, active){
       context.fillStyle = "rgba(0, 0, 0, 0.2)";
       context.fillRect(x_position, y_position, size, size);
 
       mid_point = size / 2.0;
       spacer    = size / 10.0;
 
-      context.fillStyle = "rgba(0, 0, 0, 0.2)";
+      if(active){ context.fillStyle = "rgba(0, 255, 0, 0.2)"; }
+      else{ context.fillStyle = "rgba(0, 0, 0, 0.2)"; }
       context.beginPath();
 
       switch (direction){
@@ -62,12 +71,76 @@
     function drawDPad(context, x_position, y_position, overall_size){
       button_size = overall_size / 3.0;
 
-      drawDirectionButton(context, 'up', x_position + button_size, y_position, button_size);
-      drawDirectionButton(context, 'down', x_position + button_size, y_position + overall_size - button_size, button_size);
-      drawDirectionButton(context, 'left', x_position,  y_position + button_size, button_size);
-      drawDirectionButton(context, 'right', x_position + overall_size - button_size, y_position + button_size, button_size);
+      drawDirectionButton(context, 'up', x_position + button_size, y_position, button_size, d_pad_up);
+      drawDirectionButton(context, 'down', x_position + button_size, y_position + overall_size - button_size, button_size, d_pad_down);
+      drawDirectionButton(context, 'left', x_position,  y_position + button_size, button_size, d_pad_left);
+      drawDirectionButton(context, 'right', x_position + overall_size - button_size, y_position + button_size, button_size, d_pad_right);
     }
 
-    drawDPad(context, 10, 210, 100);
+    function drawNotices(context){
+       context.fillStyle = "rgba(255, 0, 0, 0.8)";
+      num_notices = 0;
+      if(d_pad_up){
+        num_notices += 1;
+        context.fillText("PRESSED UP", 10, 10 + (10*num_notices));
+      }
+      if(d_pad_down){
+        num_notices += 1;
+        context.fillText("PRESSED DOWN", 10, 10 + (10*num_notices));
+      }
+      if(d_pad_left){
+        num_notices += 1;
+        context.fillText("PRESSED LEFT", 10, 10 + (10*num_notices));
+      }
+      if(d_pad_right){
+        num_notices += 1;
+        context.fillText("PRESSED RIGHT", 10, 10 + (10*num_notices));
+      }
+    }
+
+    function keyPressDown(event)
+    {
+      switch(event.keyCode){
+        case 37:
+          d_pad_left = true; break;
+        case 38:
+          d_pad_up = true; break;
+        case 39:
+          d_pad_right = true; break;
+        case 40:
+          d_pad_down = true; break;
+      };
+    };
+
+    function keyPressUp(event)
+    {
+      switch(event.keyCode){
+        case 37:
+          d_pad_left = false; break;
+        case 38:
+          d_pad_up = false; break;
+        case 39:
+          d_pad_right = false; break;
+        case 40:
+          d_pad_down = false; break;
+      };
+    };
+
+    function tick(){
+      context.clearRect(0,0, 480, 320);
+      drawDPad(context, 10, 210, 100);
+      drawNotices(context);
+    }
+
+    function init(){
+      // attach listeners for keyboard presses
+      window.addEventListener('keydown', keyPressDown, true)
+      window.addEventListener('keyup',   keyPressUp, true)
+
+      // start game tick
+      setInterval(tick, 50);
+    }
+
+    window.onload = init;
   </script>
 </html>

@@ -22,6 +22,12 @@
     var d_pad_right = false;
     var button_one  = false;
 
+    // square that can be controlled
+    var box_x_position = 100;
+    var box_y_position = 100;
+    var box_colour     = "#eee";
+    var colours        = ["#333", "#F5A", "#000", "#369", "#F00", "#0FF"]
+
     // draw a d-pad styled button onto the canvas
     // context:    the canvas context
     // direction:  "up", "down", "left", "right"
@@ -118,6 +124,11 @@
       }
     }
 
+    function drawBox(context){
+      context.fillStyle = box_colour;
+      context.fillRect(box_x_position, box_y_position, 50, 50);
+    }
+
     function keyPressDown(event)
     {
       switch(event.keyCode){
@@ -155,6 +166,24 @@
       drawDPad(context, 10, 210, 100);
       drawButton(context, 410, 235, 50, "1", button_one);
       drawNotices(context);
+
+      if(button_one){
+        box_colour = colours[Math.floor(Math.random()*7)];
+      }
+      if(d_pad_up){
+        box_y_position = box_y_position - 2;
+      }
+      if(d_pad_down){
+        box_y_position = box_y_position + 2;
+      }
+      if(d_pad_left){
+        box_x_position = box_x_position - 2;
+      }
+      if(d_pad_right){
+        box_x_position = box_x_position + 2;
+      }
+
+      drawBox(context);
     }
 
     function init(){

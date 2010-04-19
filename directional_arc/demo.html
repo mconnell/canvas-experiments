@@ -53,6 +53,9 @@
     }
 
     function drawPathCircle(context){
+      context.lineWidth = 5;
+      context.lineCap = 'round';
+      context.strokeStyle = 'rgba(150,150,150, 0.2)';
       context.beginPath();
       context.arc(165, 165, radius, 0, Math.PI, true); // x,y,radius, start, end, anticlockwise
       context.stroke();
@@ -68,6 +71,13 @@
       context.fillStyle = "rgba(0, 255, 0, 0.2)";
       context.beginPath();
       context.arc(centre_x + current_x, centre_y - current_y, 20, 0, Math.PI*2, true); // x,y,radius, start, end, anticlockwise
+      context.closePath();
+      context.fill();
+
+      // small red circle to highlight centre point.
+      context.fillStyle = "rgba(255, 0, 0, 0.5)";
+      context.beginPath();
+      context.arc(centre_x + current_x, centre_y - current_y, 3, 0, Math.PI*2, true); // x,y,radius, start, end, anticlockwise
       context.closePath();
       context.fill();
     }

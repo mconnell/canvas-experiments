@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  </head>
+  <body style="margin-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; -webkit-user-select: none;">
+    <canvas id="game_canvas" width="480" height="268" style="-webkit-user-select: none;">
+      &lt;canvas&gt; isn't supported by your browser..sorry..
+    </canvas>
+  </body>
+
+  <script type="text/javascript">
+    // declare canvas variable and use 2d context
+    var canvas  = document.getElementById('game_canvas');
+    var context = canvas.getContext('2d');
+
+    // arc
+    var radius    = 70;
+    var centre_x  = 165;
+    var centre_y  = 165;
+    var theta     = 70;
+
+    var current_x = 0;
+    var current_y = 0;
+
+    var touched_x = centre_x;
+    var touched_y = centre_y;
+
+    var touch_started = false;
+
+    var rotate_left  = false;
+    var rotate_right = false;
+
+    var pressed = false;
+
+    function keyPressDown(event)
+    {
+      switch(event.keyCode){
+        case 37:
+          rotate_left = true; break;
+        case 39:
+          rotate_right = true; break;
+      };
+    };
+
+    function keyPressUp(event)
+    {
+      switch(event.keyCode){
+        case 37:
+          rotate_left = false; break;
+        case 39:
+          rotate_right = false; break;
+      };
+    };
+
+    function drawMainBox(context){
+      context.fillStyle = "#336699";
+      context.beginPath();
+      context.fillRect(150, 150, 33, 33);
+      context.closePath();
+    }
+
+    function drawPathCircle(context){
+      context.lineWidth = 5;
+      context.lineCap = 'round';
+      context.strokeStyle = 'rgba(150,150,150, 0.2)';
+      context.beginPath();
+      context.arc(165, 165, radius, 0, Math.PI, true); // x,y,radius, start, end, anticlockwise
+      context.stroke();
+    }
+
+    function drawCurrentPosition(context){
+      current_x = Math.round(70*Math.cos(2*Math.PI/360 * theta));
+      current_y = Math.round(70*Math.sin(2*Math.PI/360 * theta));
+
+      context.fillText("x: " + current_x, 100, 50);
+      context.fillText("y: " + current_y, 100, 60);
+      context.fillText("theta:" + theta, 100, 70);
+
+      context.fillStyle = "rgba(0, 255, 0, 0.2)";
+      if (pressed){
+        context.fillStyle = "rgba(255, 0, 0, 0.2)"; }
+      context.beginPath();
+      context.arc(centre_x + current_x, centre_y - current_y, 20, 0, Math.PI*2, true); // x,y,radius, start, end, anticlockwise
+      context.closePath();
+      context.fill();
+
+      // small red circle to highlight centre point.
+      context.fillStyle = "rgba(255, 0, 0, 0.5)";
+      context.beginPath();
+      context.arc(centre_x + current_x, centre_y - current_y, 3, 0, Math.PI*2, true); // x,y,radius, start, end, anticlockwise
+      context.closePath();
+      context.fill();
+    }
+
+    function touchedCurrentCircle(touch_event){
+      within_x_range = centre_x + current_x - 20 < touch_event.pageX && touch_event.pageX < centre_x + current_x + 20
+      within_y_range = centre_y - current_y - 20 < touch_event.pageY && touch_event.pageY < centre_y - current_y + 20
+      return (within_x_range && within_y_range)
+    }
+
+    function drawTouchedPosition(){
+      // small blue circle to highlight touch point.
+      context.fillStyle = "rgba(0, 0, 255, 0.5)";
+
+      context.beginPath();
+      context.arc(touched_x, touched_y, 3, 0, Math.PI*2, true); // x,y,radius, start, end, anticlockwise
+      context.closePath();
+      context.fill();
+    }
+
+    // The tick represents each frame on the canvas being rendered in effect..
+    function tick(){
+      context.clearRect(0,0, 480, 320);
+      drawMainBox(context);
+      drawPathCircle(context);
+
+      if(rotate_left){
+        if (0 <= theta && theta < 180)
+          theta += 5;
+      }
+      if(rotate_right){
+        if (0 < theta && theta <= 180)
+          theta -= 5;
+      }
+
+      drawCurrentPosition(context);
+      drawTouchedPosition();
+    }
+
+    function init(){
+      // attach listeners for keyboard presses
+      window.addEventListener('keydown', keyPressDown, true)
+      window.addEventListener('keyup',   keyPressUp, true)
+
+      //iPhone control mapping
+      document.ontouchmove = function(event) {
+
+        var touches = event.touches;
+        for (var i = 0; i < touches.length; i++) {
+          var touch = touches[i];
+          touched_x = touch.pageX;
+          touched_y = touch.pageY;
+          if (pressed){
+            context.lineWidth = 2;
+            context.lineCap = 'round';
+            context.strokeStyle = 'rgba(200,200,200, 0.5)';
+            context.beginPath();
+            context.moveTo(165, 165);
+            context.lineTo(165, 165);
+            context.lineTo(touched_x, touched_y);
+            context.stroke();
+            context.closePath();
+
+             x = touched_x - centre_x
+             y = touched_y - centre_y
+             t = -Math.round(Math.atan2(y, x) * (180/Math.PI));
+            if (0 <= t && t <= 180)
+              theta = t;
+          };
+          context.fillText("xy: " + touch.pageX + ', ' + touch.pageY, 100, 80);
+        }
+        return false;
+      };
+      document.ontouchcancel = function (evt) { return false; };
+
+      document.ontouchstart = function(event){
+        pressed = false;
+        var touches = event.touches;
+        for (var i = 0; i < touches.length; i++) {
+          var touch = touches[i];
+          touched_x = touch.pageX;
+          touched_y = touch.pageY;
+          if (touchedCurrentCircle(touch))
+            pressed = true;
+        };
+        return false;
+      }
+
+      document.ontouchend = function(event){
+        pressed = false;
+        return false;
+      }
+      document.ontouchcancel = function (evt) { return false; };
+
+      // start game tick
+      setInterval(tick, 50);
+    }
+
+    window.onload = init;
+  </script>
+</html>
